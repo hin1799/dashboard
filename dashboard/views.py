@@ -48,8 +48,24 @@ def raw_chart_monthwise(request, format=None):
     df = get_monthwise_data(commodity, num_years) #default=5 years data
     data = df.to_dict(orient='records')
     serializer = MonthwiseDataSerializer(data, many=True)
-    return Response(serializer.data)
+    converted_data = {}
 
+    print(serializer.data)
+
+    for entry in serializer.data:
+        year = entry["year"]
+        month = entry["month"]
+        stk = entry["stk"]
+
+        if year not in converted_data:
+            converted_data[year] = {"month": [], "stk": []}
+
+        converted_data[year]["month"].append(month)
+        converted_data[year]["stk"].append(stk)
+
+
+    # return Response(serializer.data)
+    return Response(converted_data)
 
 #API for simple analysis - /simple/weekwise_diff/?commodity={commodity}&years={num_years}
 @api_view(['GET'])
@@ -84,6 +100,8 @@ def simple_chart_summer_analysis(request, format=None):
     return Response(serializer.data)
 
     
+#Crude yearly stock analysis
+
 
 #api-> /data/
 # @api_view(['GET'])
