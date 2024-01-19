@@ -19,3 +19,14 @@ class MonthWiseData(models.Model):
     month = models.IntegerField()
     year = models.IntegerField()
     stk = models.FloatField()
+
+#Week-wise Difference
+class WeekWiseDifferenceData(models.Model):
+    week_diff = models.CharField(max_length=10)
+    year = models.IntegerField()
+    stk = models.IntegerField() #will change depending on commodity selected
+
+#Summer Analysis
+class SummerData(models.Model):
+    date = models.DateTimeField()
+    stk = models.FloatField()

@@ -1,10 +1,10 @@
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import DataSerializer, WeekwiseDataSerializer, MonthwiseDataSerializer
+from .serializers import DataSerializer, WeekwiseDataSerializer, MonthwiseDataSerializer, WeekWiseDifferenceDataSerializer, SummerDataSerializer
 import pandas as pd
 from rest_framework.decorators import api_view
-from .helpers import get_all_data, get_weekwise_data, get_monthwise_data
+from .helpers import get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data
 
 #API for raw plot to show initially on dashboard - /raw/
 @api_view(['GET'])
@@ -50,6 +50,38 @@ def raw_chart_monthwise(request, format=None):
     serializer = MonthwiseDataSerializer(data, many=True)
     return Response(serializer.data)
 
+
+#API for simple analysis - /simple/weekwise_diff/?commodity={commodity}&years={num_years}
+@api_view(['GET'])
+def simple_chart_weekwise_diff(request, format=None):
+    '''Simple plot - Function to get weekwise difference of stocks data'''
+
+    commodity = request.GET.get('commodity')
+    num_years = request.GET.get('years')
+
+    if commodity is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST) 
+
+    df = get_weekwise_difference(commodity, num_years) #default=5 years data
+    data = df.to_dict(orient='records')
+    serializer = WeekWiseDifferenceDataSerializer(data, many=True)
+    return Response(serializer.data)
+
+#API for simple analysis - /simple/summer_analysis/?commodity={commodity}&years={num_years}
+@api_view(['GET'])
+def simple_chart_summer_analysis(request, format=None):
+    '''Simple plot - Function to plot the avg monthly stocks in summer months'''
+    
+    commodity = request.GET.get('commodity')
+    num_years = request.GET.get('years')
+
+    if commodity is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST) 
+
+    df = get_summer_data(commodity, num_years) #default=5 years data
+    data = df.to_dict(orient='records')
+    serializer = SummerDataSerializer(data, many=True)
+    return Response(serializer.data)
 
     
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Data, WeekWiseData, MonthWiseData
+from .models import Data, WeekWiseData, MonthWiseData, WeekWiseDifferenceData, SummerData
 
 class DataSerializer(serializers.ModelSerializer):
     class Meta:
@@ -26,4 +26,14 @@ class MonthwiseDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = MonthWiseData
         fields = ['id', 'month', 'year', 'stk']
+
+class WeekWiseDifferenceDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WeekWiseDifferenceData
+        fields = ['id', 'week_diff', 'year', 'stk']
+
+class SummerDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SummerData
+        fields = ['id', 'date', 'stk']
     
