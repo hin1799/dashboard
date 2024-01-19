@@ -4,17 +4,14 @@ original_data = [
     # Add more data if needed
 ]
 
-converted_data = {}
+converted_data = {"month": []}
 
 for entry in original_data:
-    year = entry["year"]
     month = entry["month"]
+    year = entry["year"]
     stk = entry["stk"]
 
-    if year not in converted_data:
-        converted_data[year] = {"month": [], "stk": []}
-
-    converted_data[year]["month"].append(month)
-    converted_data[year]["stk"].append(stk)
+    converted_data["month"].append(month)
+    converted_data.setdefault(year, []).append(stk)
 
 print(converted_data)
