@@ -147,6 +147,43 @@ def get_aggregate_analysis_monthly(commodity):
 
     return df2_dump_CRUDE
 
+def monthwise_build_draw(commodity, curr_month, prev_month):
+    df = get_all_data()
+    df = df[::-1] #sorting data
+    df['date'] = pd.to_datetime(df['date'])
+    df['week'] = df['date'].dt.isocalendar().week
+    df['month'] = df['date'].dt.month
+    df['year'] = df['date'].dt.year
+    df4 = df.copy()
+
+    months = {
+    "Jan": 1,
+    "Feb": 2,
+    "Mar": 3,
+    "Apr": 4,
+    "May": 5,
+    "Jun": 6,
+    "Jul": 7,
+    "Aug": 8,
+    "Sep": 9,
+    "Oct": 10,
+    "Nov": 11,
+    "Dec": 12
+    }
+
+    df_diff = pd.concat([df4[(df4['month']==months[curr_month])].groupby(['year']).agg({commodity:'mean'}), df4[(df4['month']==months[prev_month])].groupby(['year']).agg({commodity:'mean'}).shift()], axis=1)
+    df_diff.columns = ['Current Month', 'Previous Month']
+    df_diff['diff'] = df_diff['Current Month'] - df_diff['Previous Month']
+    df_diff['build_or_draw'] = df_diff['diff'].apply(lambda x: 'b' if x > 0 else 'd')
+    df_diff = df_diff.drop('diff', axis=1)
+    df_diff = df_diff.reset_index()
+    df_diff = df_diff.drop(0)
+
+    print(df_diff)
+
+    df_diff.columns = ['year', 'curr_month_stk', 'prev_month_stk', 'build_or_draw']
+    return df_diff
+    
 #Function to get data in a particular timeframe
 def get_timewise_data(from_dt, to_dt):
     df = get_all_data()

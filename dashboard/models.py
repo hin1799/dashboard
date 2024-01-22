@@ -38,3 +38,10 @@ class AggDataWeekMonth(models.Model):
     minimum = models.IntegerField()
     maximum = models.IntegerField()
     data_2023 = models.IntegerField()
+
+#Monthwise builds and draws
+class MonthwiseBuildDraw(models.Model):
+    year = models.IntegerField()
+    curr_month_stk = models.FloatField()
+    prev_month_stk = models.FloatField()
+    build_or_draw = models.CharField(max_length=1)

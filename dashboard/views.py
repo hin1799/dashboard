@@ -2,9 +2,9 @@ from django.http import JsonResponse
 import pandas as pd
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import DataSerializer, WeekwiseDataSerializer, MonthwiseDataSerializer, WeekWiseDifferenceDataSerializer, SummerDataSerializer, AggDataWeekMonthSerializer
+from .serializers import DataSerializer, WeekwiseDataSerializer, MonthwiseDataSerializer, WeekWiseDifferenceDataSerializer, SummerDataSerializer, AggDataWeekMonthSerializer, MonthwiseBuildDrawSerializer
 from rest_framework.decorators import api_view
-from .helpers import get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly
+from .helpers import get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly, monthwise_build_draw
 
 #API for raw plot to show initially on dashboard - /raw/
 @api_view(['GET'])
@@ -162,7 +162,7 @@ def simple_chart_weekwise_aggregations(request, format=None):
     serializer = AggDataWeekMonthSerializer(data, many=True)
 
     #Update json
-    converted_data = {"week": [], "avg": [], "min":[], "max":[], "yr2023":[]}
+    converted_data = {"week": [], "data": {"avg": [], "min":[], "max":[], "yr2023":[]}}
 
     for entry in serializer.data:
         week = entry["week_month"]
@@ -172,10 +172,10 @@ def simple_chart_weekwise_aggregations(request, format=None):
         yr2023 = entry["data_2023"]
 
         converted_data["week"].append(week)
-        converted_data["avg"].append(avg)
-        converted_data["min"].append(min)
-        converted_data["max"].append(max)
-        converted_data["yr2023"].append(yr2023)
+        converted_data["data"]["avg"].append(avg)
+        converted_data["data"]["min"].append(min)
+        converted_data["data"]["max"].append(max)
+        converted_data["data"]["yr2023"].append(yr2023)
 
     return Response(converted_data)
 
@@ -185,7 +185,7 @@ def simple_chart_monthwise_aggregations(request, format=None):
     '''Simple plot - Function to plot the monthly average, minimim and maximum of 2004-2021 vs 2023 data'''
 
     commodity = request.GET.get('commodity') 
-    print("commodity", commodity)
+
     if commodity is None:
         return Response(status=status.HTTP_400_BAD_REQUEST) 
     
@@ -194,7 +194,7 @@ def simple_chart_monthwise_aggregations(request, format=None):
     serializer = AggDataWeekMonthSerializer(data, many=True)
 
     #Update json
-    converted_data = {"month": [], "avg": [], "min":[], "max":[], "yr2023":[]}
+    converted_data = {"month": [], "data": {"avg": [], "min": [], "max": [], "yr2023": []}}
 
     for entry in serializer.data:
         month = entry["week_month"]
@@ -204,12 +204,36 @@ def simple_chart_monthwise_aggregations(request, format=None):
         yr2023 = entry["data_2023"]
 
         converted_data["month"].append(month)
-        converted_data["avg"].append(avg)
-        converted_data["min"].append(min)
-        converted_data["max"].append(max)
-        converted_data["yr2023"].append(yr2023)
+        converted_data["data"]["avg"].append(avg)
+        converted_data["data"]["min"].append(min)
+        converted_data["data"]["max"].append(max)
+        converted_data["data"]["yr2023"].append(yr2023)
 
     return Response(converted_data)
+
+
+#Advanced chart - monthwise comparisons
+@api_view(['GET'])
+def advanced_chart_build_draw_curr_prev_month(request, format=None):
+    '''Advanced plot - Function to plot the difference in stocks in 2 given months and show it as build or draw'''
+
+    commodity = request.GET.get('commodity') 
+    curr_month = request.GET.get('curr')
+    prev_month = request.GET.get('prev')
+
+    if commodity is None or curr_month is None or prev_month is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    df = monthwise_build_draw(commodity, curr_month, prev_month)
+    data = df.to_dict(orient='records')
+    serializer = MonthwiseBuildDrawSerializer(data, many=True)
+
+    #TODO - update json
+
+    return Response(serializer.data)
+
+
+#Advanced chart - amount of build and draw
 
 
 #api-> /data/

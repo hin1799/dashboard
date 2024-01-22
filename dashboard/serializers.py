@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Data, WeekWiseData, MonthWiseData, WeekWiseDifferenceData, SummerData, AggDataWeekMonth
+from .models import Data, WeekWiseData, MonthWiseData, WeekWiseDifferenceData, SummerData, AggDataWeekMonth, MonthwiseBuildDraw
 
 class DataSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,3 +41,8 @@ class AggDataWeekMonthSerializer(serializers.ModelSerializer):
     class Meta:
         model = AggDataWeekMonth
         fields = ['id', 'week_month', 'avg', 'minimum', 'maximum', 'data_2023']
+
+class MonthwiseBuildDrawSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MonthwiseBuildDraw
+        fields = ['id', 'year', 'curr_month_stk', 'prev_month_stk', 'build_or_draw']
