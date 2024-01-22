@@ -30,10 +30,31 @@ def raw_chart_weekwise(request, format=None):
     df = get_weekwise_data(commodity, num_years) #default=5 years data
     data = df.to_dict(orient='records')
     serializer = WeekwiseDataSerializer(data, many=True)
+
+    converted_data = {}
+
+    converted_data = {"week_no": set(), "year": {}}
+
+    for entry in serializer.data:
+        week = entry["week_no"]
+        year = entry["year"]
+        stk = entry["stk"]
+
+        converted_data["week_no"].add(week)
+
+        if year not in converted_data["year"]:
+            converted_data["year"][year] = []
+
+        converted_data["year"][year].append(stk)
+
+    # return Response(serializer.data)
+    return Response(converted_data)
+
+
     return Response(serializer.data)
 
 
-#API for monthwise analysis - /raw/weekwise/?commmodity={commodity}&years={num_years}
+#API for monthwise analysis - /raw/monthwise/?commmodity={commodity}&years={num_years}
 @api_view(['GET'])
 def raw_chart_monthwise(request, format=None):
     '''Raw plot - Function to get monthwise avg analysis data'''
@@ -49,20 +70,6 @@ def raw_chart_monthwise(request, format=None):
     data = df.to_dict(orient='records')
     serializer = MonthwiseDataSerializer(data, many=True)
     converted_data = {}
-
-    # converted_data = {"month": set()}
-
-    # for entry in serializer.data:
-    #     month = entry["month"]
-    #     year = entry["year"]
-    #     stk = entry["stk"]
-
-    #     converted_data["month"].add(month)
-    #     converted_data.setdefault(year, []).append(stk)
-
-    # # return Response(serializer.data)
-    # return Response(converted_data)
-
 
     converted_data = {"month": set(), "year": {}}
 
