@@ -129,6 +129,24 @@ def get_aggregate_analysis_weekly(commodity):
 
     return df1_dump_CRUDE
 
+def get_aggregate_analysis_monthly(commodity):
+    df = get_all_data()
+    df = df[::-1] #sorting data
+    df['date'] = pd.to_datetime(df['date'])
+    df['week'] = df['date'].dt.isocalendar().week
+    df['month'] = df['date'].dt.month
+    df['year'] = df['date'].dt.year
+
+    df1 = df.copy()
+
+    df1_dump_2023_CRUDE_Monthly = df1[df1['year']==2023].groupby('month').agg({commodity: 'mean'}).values
+    df2_dump_CRUDE = df1[df1['year'] != 2023].groupby('month').agg({commodity:['mean', 'min', 'max']})
+    df2_dump_CRUDE['2023'] = df1_dump_2023_CRUDE_Monthly
+    df2_dump_CRUDE = df2_dump_CRUDE.reset_index()
+    df2_dump_CRUDE.columns = ['week_month', 'avg', 'minimum', 'maximum','data_2023']
+
+    return df2_dump_CRUDE
+
 #Function to get data in a particular timeframe
 def get_timewise_data(from_dt, to_dt):
     df = get_all_data()

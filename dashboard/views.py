@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import DataSerializer, WeekwiseDataSerializer, MonthwiseDataSerializer, WeekWiseDifferenceDataSerializer, SummerDataSerializer, AggDataWeekMonthSerializer
 from rest_framework.decorators import api_view
-from .helpers import get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly
+from .helpers import get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly
 
 #API for raw plot to show initially on dashboard - /raw/
 @api_view(['GET'])
@@ -147,7 +147,7 @@ def simple_chart_summer_analysis(request, format=None):
     return Response(converted_data)
 
     
-#Average, min, max, 2023 analysis
+#Average, min, max, 2023 analysis weekwise
 @api_view(['GET'])
 def simple_chart_weekwise_aggregations(request, format=None):
     '''Simple plot - Function to plot the weekly average, minimim and maximum of 2004-2021 vs 2023 data'''
@@ -172,6 +172,38 @@ def simple_chart_weekwise_aggregations(request, format=None):
         yr2023 = entry["data_2023"]
 
         converted_data["week"].append(week)
+        converted_data["avg"].append(avg)
+        converted_data["min"].append(min)
+        converted_data["max"].append(max)
+        converted_data["yr2023"].append(yr2023)
+
+    return Response(converted_data)
+
+#Average, min, max, 2023 analysis
+@api_view(['GET'])
+def simple_chart_monthwise_aggregations(request, format=None):
+    '''Simple plot - Function to plot the monthly average, minimim and maximum of 2004-2021 vs 2023 data'''
+
+    commodity = request.GET.get('commodity') 
+    print("commodity", commodity)
+    if commodity is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST) 
+    
+    df = get_aggregate_analysis_monthly(commodity)
+    data = df.to_dict(orient='records')
+    serializer = AggDataWeekMonthSerializer(data, many=True)
+
+    #Update json
+    converted_data = {"month": [], "avg": [], "min":[], "max":[], "yr2023":[]}
+
+    for entry in serializer.data:
+        month = entry["week_month"]
+        avg = entry["avg"]
+        min = entry["minimum"]
+        max = entry["maximum"]
+        yr2023 = entry["data_2023"]
+
+        converted_data["month"].append(month)
         converted_data["avg"].append(avg)
         converted_data["min"].append(min)
         converted_data["max"].append(max)
