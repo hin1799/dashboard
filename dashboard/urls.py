@@ -27,7 +27,7 @@ urlpatterns = [
     path('raw/monthwise/', views.raw_chart_monthwise),
     path('simple/weekwise_diff/', views.simple_chart_weekwise_diff),
     path('simple/summer_analysis/', views.simple_chart_summer_analysis),
-    path('simple/aggregate_analysis/', views.simple_chart_weekwise_aggregations),
+    path('simple/aggregate_analysis/weekwise/', views.simple_chart_weekwise_aggregations),
     path('simple/aggregate_analysis/monthwise/', views.simple_chart_monthwise_aggregations)
 ]
 
