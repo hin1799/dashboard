@@ -50,7 +50,21 @@ def raw_chart_monthwise(request, format=None):
     serializer = MonthwiseDataSerializer(data, many=True)
     converted_data = {}
 
-    converted_data = {"month": set()}
+    # converted_data = {"month": set()}
+
+    # for entry in serializer.data:
+    #     month = entry["month"]
+    #     year = entry["year"]
+    #     stk = entry["stk"]
+
+    #     converted_data["month"].add(month)
+    #     converted_data.setdefault(year, []).append(stk)
+
+    # # return Response(serializer.data)
+    # return Response(converted_data)
+
+
+    converted_data = {"month": set(), "year": {}}
 
     for entry in serializer.data:
         month = entry["month"]
@@ -58,10 +72,15 @@ def raw_chart_monthwise(request, format=None):
         stk = entry["stk"]
 
         converted_data["month"].add(month)
-        converted_data.setdefault(year, []).append(stk)
+
+        if year not in converted_data["year"]:
+            converted_data["year"][year] = []
+
+        converted_data["year"][year].append(stk)
 
     # return Response(serializer.data)
     return Response(converted_data)
+
 
 #API for simple analysis - /simple/weekwise_diff/?commodity={commodity}&years={num_years}
 @api_view(['GET'])
