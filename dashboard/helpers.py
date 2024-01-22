@@ -19,8 +19,11 @@ def get_weekwise_data(commodity, num_years):
         num_years=5
     else:
         num_years = int(num_years)
-
-    if(num_years==5):
+    if(num_years==1):
+        df = df[df['year'] >= 2023]
+    elif(num_years==2):
+        df = df[df['year'] >= 2022]
+    elif(num_years==5):
         df = df[df['year'] >= 2019] #default-last 5 years data
     elif(num_years==10):
         df = df[df['year']>=2014]
@@ -46,7 +49,11 @@ def get_monthwise_data(commodity, num_years):
     else:
         num_years = int(num_years)
 
-    if(num_years==5):
+    if(num_years==1):
+        temp = temp[temp['year'] >= 2023]
+    elif(num_years==2):
+        temp = temp[temp['year'] >= 2022]
+    elif(num_years==5):
         temp = temp[temp['year'] >= 2019] #default-last 5 years data
     elif(num_years==10):
         temp = temp[temp['year']>=2014]
@@ -73,7 +80,11 @@ def get_weekwise_difference(commodity, num_years):
     else:
         num_years = int(num_years)
 
-    if(num_years==5):
+    if(num_years==1):
+        df_week = df_week[df_week['year'] >= 2023]
+    elif(num_years==2):
+        df_week = df_week[df_week['year'] >= 2022]
+    elif(num_years==5):
         df_week = df_week[df_week['year'] >= 2019] #default-last 5 years data
     elif(num_years==10):
         df_week = df_week[df_week['year']>=2014]
@@ -101,7 +112,11 @@ def get_summer_data(commodity, num_years):
     else:
         num_years = int(num_years)
 
-    if(num_years==5):
+    if(num_years==1):
+        df_summer = df_summer[df_summer['year'] >= 2023]
+    elif(num_years==2):
+        df_summer = df_summer[df_summer['year'] >= 2022]
+    elif(num_years==5):
         df_summer = df_summer[df_summer['year'] >= 2019] #default-last 5 years data
     elif(num_years==10):
         df_summer = df_summer[df_summer['year']>=2014]
@@ -183,7 +198,37 @@ def monthwise_build_draw(commodity, curr_month, prev_month):
 
     df_diff.columns = ['year', 'curr_month_stk', 'prev_month_stk', 'build_or_draw']
     return df_diff
+
+
+def build_draw_yearly(commodity, num_years):
+    df = get_all_data()
+    df = df[::-1] #sorting data
+    df['date'] = pd.to_datetime(df['date'])
+    df['year'] = df['date'].dt.year
+    temp = df.copy()
+    if num_years is None:
+        num_years=5
+    else:
+        num_years = int(num_years)
+
+    if(num_years==1):
+        temp = temp[temp['year'] >= 2023]
+    elif(num_years==2):
+        temp = temp[temp['year'] >= 2022]
+    elif(num_years==5):
+        temp = temp[temp['year'] >= 2019] #default-last 5 years data
+    elif(num_years==10):
+        temp = temp[temp['year']>=2014]
+    elif(num_years==15):
+        temp = temp[temp['year']>=2009]
     
+    temp['diff'] = temp[commodity].diff()
+    temp = temp.reset_index()
+    temp.rename(columns={commodity:'stk'}, inplace=True)
+    temp = temp.drop(0)
+
+    return temp[['date', 'stk', 'diff']]
+
 #Function to get data in a particular timeframe
 def get_timewise_data(from_dt, to_dt):
     df = get_all_data()

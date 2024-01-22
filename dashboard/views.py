@@ -2,9 +2,9 @@ from django.http import JsonResponse
 import pandas as pd
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import DataSerializer, WeekwiseDataSerializer, MonthwiseDataSerializer, WeekWiseDifferenceDataSerializer, SummerDataSerializer, AggDataWeekMonthSerializer, MonthwiseBuildDrawSerializer
+from .serializers import DataSerializer, WeekwiseDataSerializer, MonthwiseDataSerializer, WeekWiseDifferenceDataSerializer, SummerDataSerializer, AggDataWeekMonthSerializer, MonthwiseBuildDrawSerializer, YearwiseBuildDrawSerializer
 from rest_framework.decorators import api_view
-from .helpers import get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly, monthwise_build_draw
+from .helpers import get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly, monthwise_build_draw, build_draw_yearly
 
 #API for raw plot to show initially on dashboard - /raw/
 @api_view(['GET'])
@@ -244,8 +244,33 @@ def advanced_chart_build_draw_curr_prev_month(request, format=None):
 
     return Response(converted_data)
 
-#Advanced chart - amount of build and draw
+#Advanced chart - amount of build and draw (line+bar chart)
+@api_view(['GET'])
+def advanced_chart_build_draw_years(request, format=None):
+    '''Advanced plot - Function to show the build or draw over weeks and also the amount of build and draw'''
+    commodity = request.GET.get('commodity')
+    num_years = request.GET.get('years')
 
+    if commodity is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+    
+    df = build_draw_yearly(commodity, num_years)
+    data = df.to_dict(orient='records')
+    serializer = YearwiseBuildDrawSerializer(data, many=True)
+
+    #update json
+    converted_data = {"date": [], "data": {"stk": [], "diff": []}}
+
+    for entry in serializer.data:
+        date = entry["date"]
+        stk = entry["stk"]
+        diff = entry["diff"]
+
+        converted_data["date"].append(date)
+        converted_data["data"]["stk"].append(stk)
+        converted_data["data"]["diff"].append(diff)
+
+    return Response(converted_data)
 
 #api-> /data/
 # @api_view(['GET'])

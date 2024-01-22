@@ -45,3 +45,10 @@ class MonthwiseBuildDraw(models.Model):
     curr_month_stk = models.FloatField()
     prev_month_stk = models.FloatField()
     build_or_draw = models.CharField(max_length=1)
+
+#Yearwise builds draws
+class YearwiseBuildDraw(models.Model):
+    date = models.DateTimeField()
+    stk = models.IntegerField()
+    diff = models.FloatField()
+
