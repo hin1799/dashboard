@@ -20,7 +20,6 @@ from dashboard import views
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('raw/', views.raw_chart_basic),
     path('raw/weekwise/', views.raw_chart_weekwise),
     path('raw/monthwise/', views.raw_chart_monthwise),

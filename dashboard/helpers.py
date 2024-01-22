@@ -7,18 +7,12 @@ def get_all_data():
     df = pd.read_csv("C:\\Hinal\\Mini_project\\dashboard\\EIA data.csv")
     return df
 
-#Function to get weekwise analysis data
-def get_weekwise_data(commodity, num_years):
-    df = get_all_data()
-    df = df[::-1] #sorting data
-    df['date'] = pd.to_datetime(df['date'])
-    df['week_no'] = df['date'].dt.isocalendar().week
-    df['year'] = df['date'].dt.year
-
+def filter_df_yearwise(df, num_years):
     if num_years is None:
         num_years=5
     else:
         num_years = int(num_years)
+
     if(num_years==1):
         df = df[df['year'] >= 2023]
     elif(num_years==2):
@@ -29,6 +23,18 @@ def get_weekwise_data(commodity, num_years):
         df = df[df['year']>=2014]
     elif(num_years==15):
         df = df[df['year']>=2009]
+    
+    return df
+
+#Function to get weekwise analysis data
+def get_weekwise_data(commodity, num_years):
+    df = get_all_data()
+    df = df[::-1] #sorting data
+    df['date'] = pd.to_datetime(df['date'])
+    df['week_no'] = df['date'].dt.isocalendar().week
+    df['year'] = df['date'].dt.year
+
+    df = filter_df_yearwise(df, num_years)
 
     df.rename(columns={commodity:'stk'}, inplace=True)
     return df[['week_no', 'year', 'stk']]
@@ -43,22 +49,7 @@ def get_monthwise_data(commodity, num_years):
     df['year'] = df['date'].dt.year
 
     temp = df.groupby(['year','month']).agg({commodity: 'mean'}).reset_index()
-
-    if num_years is None:
-        num_years=5
-    else:
-        num_years = int(num_years)
-
-    if(num_years==1):
-        temp = temp[temp['year'] >= 2023]
-    elif(num_years==2):
-        temp = temp[temp['year'] >= 2022]
-    elif(num_years==5):
-        temp = temp[temp['year'] >= 2019] #default-last 5 years data
-    elif(num_years==10):
-        temp = temp[temp['year']>=2014]
-    elif(num_years==15):
-        temp = temp[temp['year']>=2009]
+    temp = filter_df_yearwise(temp, num_years)
 
     temp.rename(columns={commodity:'stk'}, inplace=True)
     return temp[['month', 'year', 'stk']]
@@ -75,21 +66,7 @@ def get_weekwise_difference(commodity, num_years):
     df_week['week_diff'] = df_week['week_no'].astype(str).shift(1) + '-' + df_week['week_no'].astype(str)
     df_week['stk'] = df_week[commodity].shift(1) - df_week[commodity]
 
-    if num_years is None:
-        num_years=5
-    else:
-        num_years = int(num_years)
-
-    if(num_years==1):
-        df_week = df_week[df_week['year'] >= 2023]
-    elif(num_years==2):
-        df_week = df_week[df_week['year'] >= 2022]
-    elif(num_years==5):
-        df_week = df_week[df_week['year'] >= 2019] #default-last 5 years data
-    elif(num_years==10):
-        df_week = df_week[df_week['year']>=2014]
-    elif(num_years==15):
-        df_week = df_week[df_week['year']>=2009]
+    df_week = filter_df_yearwise(df_week, num_years)
 
     return df_week[['week_diff', 'year', 'stk']]
 
@@ -107,21 +84,7 @@ def get_summer_data(commodity, num_years):
     df_summer = df_summer.groupby(['year','month']).agg({commodity:'mean', 'date':'first'})
     df_summer = df_summer.reset_index()
 
-    if num_years is None:
-        num_years=5
-    else:
-        num_years = int(num_years)
-
-    if(num_years==1):
-        df_summer = df_summer[df_summer['year'] >= 2023]
-    elif(num_years==2):
-        df_summer = df_summer[df_summer['year'] >= 2022]
-    elif(num_years==5):
-        df_summer = df_summer[df_summer['year'] >= 2019] #default-last 5 years data
-    elif(num_years==10):
-        df_summer = df_summer[df_summer['year']>=2014]
-    elif(num_years==15):
-        df_summer = df_summer[df_summer['year']>=2009]
+    df_summer = filter_df_yearwise(df_summer, num_years)
     
     df_summer.rename(columns={commodity:'stk'}, inplace=True)
     return df_summer[['date', 'stk']]
@@ -194,8 +157,6 @@ def monthwise_build_draw(commodity, curr_month, prev_month):
     df_diff = df_diff.reset_index()
     df_diff = df_diff.drop(0)
 
-    print(df_diff)
-
     df_diff.columns = ['year', 'curr_month_stk', 'prev_month_stk', 'build_or_draw']
     return df_diff
 
@@ -206,21 +167,8 @@ def build_draw_yearly(commodity, num_years):
     df['date'] = pd.to_datetime(df['date'])
     df['year'] = df['date'].dt.year
     temp = df.copy()
-    if num_years is None:
-        num_years=5
-    else:
-        num_years = int(num_years)
-
-    if(num_years==1):
-        temp = temp[temp['year'] >= 2023]
-    elif(num_years==2):
-        temp = temp[temp['year'] >= 2022]
-    elif(num_years==5):
-        temp = temp[temp['year'] >= 2019] #default-last 5 years data
-    elif(num_years==10):
-        temp = temp[temp['year']>=2014]
-    elif(num_years==15):
-        temp = temp[temp['year']>=2009]
+    
+    temp = filter_df_yearwise(temp, num_years)
     
     temp['diff'] = temp[commodity].diff()
     temp = temp.reset_index()
