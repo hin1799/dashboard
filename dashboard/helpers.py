@@ -7,6 +7,16 @@ def get_all_data():
     df = pd.read_csv("C:\\Hinal\\Mini_project\\dashboard\\EIA data.csv")
     return df
 
+def get_dataframe():
+    df = get_all_data()
+    df = df[::-1] #sorting data
+    df['date'] = pd.to_datetime(df['date'])
+    df['week_no'] = df['date'].dt.isocalendar().week
+    df['year'] = df['date'].dt.year
+    df['month'] = df['date'].dt.month
+    return df
+
+
 def filter_df_yearwise(df, num_years):
     if num_years is None:
         num_years=5
@@ -28,112 +38,63 @@ def filter_df_yearwise(df, num_years):
 
 #Function to get weekwise analysis data
 def get_weekwise_data(commodity, num_years):
-    df = get_all_data()
-    df = df[::-1] #sorting data
-    df['date'] = pd.to_datetime(df['date'])
-    df['week_no'] = df['date'].dt.isocalendar().week
-    df['year'] = df['date'].dt.year
-
+    df = get_dataframe()
     df = filter_df_yearwise(df, num_years)
 
     df.rename(columns={commodity:'stk'}, inplace=True)
     return df[['week_no', 'year', 'stk']]
 
-
 #Function to get monthwise avg analysis data
 def get_monthwise_data(commodity, num_years):
-    df = get_all_data()
-    df = df[::-1] #sorting data
-    df['date'] = pd.to_datetime(df['date'])
-    df['month'] = df['date'].dt.month
-    df['year'] = df['date'].dt.year
-
+    df = get_dataframe()
     temp = df.groupby(['year','month']).agg({commodity: 'mean'}).reset_index()
     temp = filter_df_yearwise(temp, num_years)
-
     temp.rename(columns={commodity:'stk'}, inplace=True)
     return temp[['month', 'year', 'stk']]
 
 #Function to get the weekwise difference data
 def get_weekwise_difference(commodity, num_years):
-    df = get_all_data()
-    df = df[::-1] #sorting data
-    df['date'] = pd.to_datetime(df['date'])
-    df['week_no'] = df['date'].dt.isocalendar().week
-    df['year'] = df['date'].dt.year
-
+    df = get_dataframe()
     df_week = df.copy()
     df_week['week_diff'] = df_week['week_no'].astype(str).shift(1) + '-' + df_week['week_no'].astype(str)
     df_week['stk'] = df_week[commodity].shift(1) - df_week[commodity]
-
     df_week = filter_df_yearwise(df_week, num_years)
-
     return df_week[['week_diff', 'year', 'stk']]
 
 
 #Function to get the average stocks in summer months
 def get_summer_data(commodity, num_years):
-    df = get_all_data()
-    df = df[::-1] #sorting data
-    df['date'] = pd.to_datetime(df['date'])
-    df['week_no'] = df['date'].dt.isocalendar().week
-    df['year'] = df['date'].dt.year
-    df['month'] = df['date'].dt.month
-
+    df = get_dataframe()
     df_summer = df[df['month'].isin([5,6,7,8])]
     df_summer = df_summer.groupby(['year','month']).agg({commodity:'mean', 'date':'first'})
     df_summer = df_summer.reset_index()
-
     df_summer = filter_df_yearwise(df_summer, num_years)
-    
     df_summer.rename(columns={commodity:'stk'}, inplace=True)
     return df_summer[['date', 'stk']]
 
 def get_aggregate_analysis_weekly(commodity):
-    df = get_all_data()
-    df = df[::-1] #sorting data
-    df['date'] = pd.to_datetime(df['date'])
-    df['week'] = df['date'].dt.isocalendar().week
-    df['year'] = df['date'].dt.year
-
+    df = get_dataframe()
     df1 = df.copy()
-
     df1_dump_2023_CRUDE = list(df1[df1['year']==2023][commodity])
-    df1_dump_CRUDE = df1[df1['week']!= 53][df1['year'] != 2023].groupby('week').agg({commodity:['mean', 'min', 'max']})
+    df1_dump_CRUDE = df1[df1['week_no']!= 53][df1['year'] != 2023].groupby('week_no').agg({commodity:['mean', 'min', 'max']})
     df1_dump_CRUDE['2023'] = df1_dump_2023_CRUDE
-    
     df1_dump_CRUDE = df1_dump_CRUDE.reset_index()
     df1_dump_CRUDE.columns = ['week_month', 'avg', 'minimum', 'maximum','data_2023']
-
     return df1_dump_CRUDE
 
 def get_aggregate_analysis_monthly(commodity):
-    df = get_all_data()
-    df = df[::-1] #sorting data
-    df['date'] = pd.to_datetime(df['date'])
-    df['week'] = df['date'].dt.isocalendar().week
-    df['month'] = df['date'].dt.month
-    df['year'] = df['date'].dt.year
-
+    df = get_dataframe()
     df1 = df.copy()
-
     df1_dump_2023_CRUDE_Monthly = df1[df1['year']==2023].groupby('month').agg({commodity: 'mean'}).values
     df2_dump_CRUDE = df1[df1['year'] != 2023].groupby('month').agg({commodity:['mean', 'min', 'max']})
     df2_dump_CRUDE['2023'] = df1_dump_2023_CRUDE_Monthly
     df2_dump_CRUDE = df2_dump_CRUDE.reset_index()
     df2_dump_CRUDE.columns = ['week_month', 'avg', 'minimum', 'maximum','data_2023']
-
     return df2_dump_CRUDE
 
 def monthwise_build_draw(commodity, curr_month, prev_month):
-    df = get_all_data()
-    df = df[::-1] #sorting data
-    df['date'] = pd.to_datetime(df['date'])
-    df['week'] = df['date'].dt.isocalendar().week
-    df['month'] = df['date'].dt.month
-    df['year'] = df['date'].dt.year
+    df = get_dataframe()
     df4 = df.copy()
-
     months = {
     "Jan": 1,
     "Feb": 2,
@@ -156,34 +117,21 @@ def monthwise_build_draw(commodity, curr_month, prev_month):
     df_diff = df_diff.drop('diff', axis=1)
     df_diff = df_diff.reset_index()
     df_diff = df_diff.drop(0)
-
     df_diff.columns = ['year', 'curr_month_stk', 'prev_month_stk', 'build_or_draw']
     return df_diff
 
-
 def build_draw_yearly(commodity, num_years):
-    df = get_all_data()
-    df = df[::-1] #sorting data
-    df['date'] = pd.to_datetime(df['date'])
-    df['year'] = df['date'].dt.year
+    df = get_dataframe()
     temp = df.copy()
-    
     temp = filter_df_yearwise(temp, num_years)
-    
     temp['diff'] = temp[commodity].diff()
     temp = temp.reset_index()
     temp.rename(columns={commodity:'stk'}, inplace=True)
     temp = temp.drop(0)
-
     return temp[['date', 'stk', 'diff']]
 
 def build_draw_percentage(commodity):
-    df = get_all_data()
-    df = df[::-1] #sorting data
-    df['date'] = pd.to_datetime(df['date'])
-    df['year'] = df['date'].dt.year
-    df['week'] = df['date'].dt.isocalendar().week
-    df['month'] = df['date'].dt.month
+    df = get_dataframe()
 
     df['inventory_diff'] = df[commodity].diff()
     df['build_draw'] = df['inventory_diff'].apply(lambda x: -1 if x<0 else 1)
@@ -195,7 +143,6 @@ def build_draw_percentage(commodity):
 
     pivot_table = pivot_table.reset_index()
     return pivot_table[['month','build_per','draw_per']]
-
 
 #Function to get data in a particular timeframe
 def get_timewise_data(from_dt, to_dt):
