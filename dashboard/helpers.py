@@ -111,6 +111,24 @@ def get_summer_data(commodity, num_years):
     df_summer.rename(columns={commodity:'stk'}, inplace=True)
     return df_summer[['date', 'stk']]
 
+def get_aggregate_analysis_weekly(commodity):
+    df = get_all_data()
+    df = df[::-1] #sorting data
+    df['date'] = pd.to_datetime(df['date'])
+    df['week'] = df['date'].dt.isocalendar().week
+    df['year'] = df['date'].dt.year
+
+    df1 = df.copy()
+
+    df1_dump_2023_CRUDE = list(df1[df1['year']==2023][commodity])
+    df1_dump_CRUDE = df1[df1['week']!= 53][df1['year'] != 2023].groupby('week').agg({commodity:['mean', 'min', 'max']})
+    df1_dump_CRUDE['2023'] = df1_dump_2023_CRUDE
+    
+    df1_dump_CRUDE = df1_dump_CRUDE.reset_index()
+    df1_dump_CRUDE.columns = ['week_month', 'avg', 'minimum', 'maximum','data_2023']
+
+    return df1_dump_CRUDE
+
 #Function to get data in a particular timeframe
 def get_timewise_data(from_dt, to_dt):
     df = get_all_data()

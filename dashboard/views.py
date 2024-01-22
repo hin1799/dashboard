@@ -1,10 +1,10 @@
 from django.http import JsonResponse
+import pandas as pd
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import DataSerializer, WeekwiseDataSerializer, MonthwiseDataSerializer, WeekWiseDifferenceDataSerializer, SummerDataSerializer
-import pandas as pd
+from .serializers import DataSerializer, WeekwiseDataSerializer, MonthwiseDataSerializer, WeekWiseDifferenceDataSerializer, SummerDataSerializer, AggDataWeekMonthSerializer
 from rest_framework.decorators import api_view
-from .helpers import get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data
+from .helpers import get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly
 
 #API for raw plot to show initially on dashboard - /raw/
 @api_view(['GET'])
@@ -49,9 +49,6 @@ def raw_chart_weekwise(request, format=None):
 
     # return Response(serializer.data)
     return Response(converted_data)
-
-
-    return Response(serializer.data)
 
 
 #API for monthwise analysis - /raw/monthwise/?commmodity={commodity}&years={num_years}
@@ -103,7 +100,25 @@ def simple_chart_weekwise_diff(request, format=None):
     df = get_weekwise_difference(commodity, num_years) #default=5 years data
     data = df.to_dict(orient='records')
     serializer = WeekWiseDifferenceDataSerializer(data, many=True)
-    return Response(serializer.data)
+
+    #Update json
+    converted_data = {}
+
+    converted_data = {"week_diff": set(), "year": {}}
+
+    for entry in serializer.data:
+        week_diff = entry["week_diff"]
+        year = entry["year"]
+        stk = entry["stk"]
+
+        converted_data["week_diff"].add(week_diff)
+
+        if year not in converted_data["year"]:
+            converted_data["year"][year] = []
+
+        converted_data["year"][year].append(stk)
+
+    return Response(converted_data)
 
 #API for simple analysis - /simple/summer_analysis/?commodity={commodity}&years={num_years}
 @api_view(['GET'])
@@ -119,10 +134,36 @@ def simple_chart_summer_analysis(request, format=None):
     df = get_summer_data(commodity, num_years) #default=5 years data
     data = df.to_dict(orient='records')
     serializer = SummerDataSerializer(data, many=True)
-    return Response(serializer.data)
+
+    converted_data = {"date": [], "stk": []}
+
+    for entry in serializer.data:
+        date_str = entry["date"]
+        stk = entry["stk"]
+
+        converted_data["date"].append(date_str)
+        converted_data["stk"].append(stk)
+
+    return Response(converted_data)
 
     
-#Crude yearly stock analysis
+#Average, min, max, 2023 analysis
+@api_view(['GET'])
+def simple_chart_weekwise_aggregations(request, format=None):
+    '''Simple plot - Function to plot the weekly average, minimim and maximum of 2004-2021 vs 2023 data'''
+
+    commodity = request.GET.get('commodity') 
+    print("commodity", commodity)
+    if commodity is None:
+        return Response(status=status.HTTP_400_BAD_REQUEST) 
+    
+    df = get_aggregate_analysis_weekly(commodity)
+    data = df.to_dict(orient='records')
+    serializer = AggDataWeekMonthSerializer(data, many=True)
+
+    #Update json
+    
+    return Response(serializer.data)
 
 
 #api-> /data/

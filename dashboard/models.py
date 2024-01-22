@@ -30,3 +30,11 @@ class WeekWiseDifferenceData(models.Model):
 class SummerData(models.Model):
     date = models.DateTimeField()
     stk = models.FloatField()
+
+#Average min max 2023 analysis
+class AggDataWeekMonth(models.Model):
+    week_month = models.IntegerField()
+    avg = models.FloatField()
+    minimum = models.IntegerField()
+    maximum = models.IntegerField()
+    data_2023 = models.IntegerField()

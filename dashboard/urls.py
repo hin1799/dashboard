@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from dashboard import views
-from .views import raw_chart_basic, raw_chart_weekwise, raw_chart_monthwise, simple_chart_weekwise_diff, simple_chart_summer_analysis
+from .views import raw_chart_basic, raw_chart_weekwise, raw_chart_monthwise, simple_chart_weekwise_diff, simple_chart_summer_analysis, get_aggregate_analysis_weekly
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
@@ -26,6 +26,7 @@ urlpatterns = [
     path('raw/weekwise/', views.raw_chart_weekwise),
     path('raw/monthwise/', views.raw_chart_monthwise),
     path('simple/weekwise_diff/', views.simple_chart_weekwise_diff),
-    path('simple/summer_analysis/', views.simple_chart_summer_analysis)
+    path('simple/summer_analysis/', views.simple_chart_summer_analysis),
+    path('simple/aggregate_analysis/', views.simple_chart_weekwise_aggregations)
 ]
 
