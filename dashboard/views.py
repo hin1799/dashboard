@@ -162,8 +162,22 @@ def simple_chart_weekwise_aggregations(request, format=None):
     serializer = AggDataWeekMonthSerializer(data, many=True)
 
     #Update json
-    
-    return Response(serializer.data)
+    converted_data = {"week": [], "avg": [], "min":[], "max":[], "yr2023":[]}
+
+    for entry in serializer.data:
+        week = entry["week_month"]
+        avg = entry["avg"]
+        min = entry["minimum"]
+        max = entry["maximum"]
+        yr2023 = entry["data_2023"]
+
+        converted_data["week"].append(week)
+        converted_data["avg"].append(avg)
+        converted_data["min"].append(min)
+        converted_data["max"].append(max)
+        converted_data["yr2023"].append(yr2023)
+
+    return Response(converted_data)
 
 
 #api-> /data/
