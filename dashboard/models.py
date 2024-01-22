@@ -52,3 +52,8 @@ class YearwiseBuildDraw(models.Model):
     stk = models.IntegerField()
     diff = models.FloatField()
 
+#Build draw percentage
+class BuildDrawPercentage(models.Model):
+    month = models.IntegerField()
+    build_per = models.FloatField()
+    draw_per = models.FloatField()

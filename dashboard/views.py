@@ -2,9 +2,9 @@ from django.http import JsonResponse
 import pandas as pd
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import DataSerializer, WeekwiseDataSerializer, MonthwiseDataSerializer, WeekWiseDifferenceDataSerializer, SummerDataSerializer, AggDataWeekMonthSerializer, MonthwiseBuildDrawSerializer, YearwiseBuildDrawSerializer
 from rest_framework.decorators import api_view
-from .helpers import get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly, monthwise_build_draw, build_draw_yearly
+from .helpers import build_draw_percentage, get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly, monthwise_build_draw, build_draw_yearly
+from .serializers import *
 
 #API for raw plot to show initially on dashboard - /raw/
 @api_view(['GET'])
@@ -269,6 +269,30 @@ def advanced_chart_build_draw_years(request, format=None):
         converted_data["date"].append(date)
         converted_data["data"]["stk"].append(stk)
         converted_data["data"]["diff"].append(diff)
+
+    return Response(converted_data)
+
+#Advanced chart on build draw percentage analysis
+@api_view(['GET'])
+def advanced_chart_build_draw_percentage(request, format=None):
+    '''Advanced plot - Function to show the build and draw percentage in each month over the years'''
+    commodity = request.GET.get('commodity')
+
+    df = build_draw_percentage(commodity)
+    data = df.to_dict(orient='records')
+    serializer = BuildDrawPercentageSerializer(data, many=True)
+
+    #modify json
+    converted_data = {"month": [], "data": {"build_per": [], "draw_per": []}}
+
+    for entry in serializer.data:
+        month = entry["month"]
+        build_per = entry["build_per"]
+        draw_per = entry["draw_per"]
+
+        converted_data["month"].append(month)
+        converted_data["data"]["build_per"].append(build_per)
+        converted_data["data"]["draw_per"].append(draw_per)
 
     return Response(converted_data)
 

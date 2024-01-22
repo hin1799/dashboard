@@ -229,6 +229,26 @@ def build_draw_yearly(commodity, num_years):
 
     return temp[['date', 'stk', 'diff']]
 
+def build_draw_percentage(commodity):
+    df = get_all_data()
+    df = df[::-1] #sorting data
+    df['date'] = pd.to_datetime(df['date'])
+    df['year'] = df['date'].dt.year
+    df['week'] = df['date'].dt.isocalendar().week
+    df['month'] = df['date'].dt.month
+
+    df['inventory_diff'] = df[commodity].diff()
+    df['build_draw'] = df['inventory_diff'].apply(lambda x: -1 if x<0 else 1)
+
+    pivot_table = df.pivot_table(index='month', columns='build_draw', aggfunc='size')
+    pivot_table['total'] = pivot_table.sum(axis=1)
+    pivot_table['build_per'] = (pivot_table[1]/pivot_table['total'])*100
+    pivot_table['draw_per'] = (pivot_table[-1]/pivot_table['total'])*100
+
+    pivot_table = pivot_table.reset_index()
+    return pivot_table[['month','build_per','draw_per']]
+
+
 #Function to get data in a particular timeframe
 def get_timewise_data(from_dt, to_dt):
     df = get_all_data()
