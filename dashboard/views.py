@@ -228,10 +228,21 @@ def advanced_chart_build_draw_curr_prev_month(request, format=None):
     data = df.to_dict(orient='records')
     serializer = MonthwiseBuildDrawSerializer(data, many=True)
 
-    #TODO - update json
+    #update json
+    converted_data = {"year": [], "data": {"curr_month_stk": [], "prev_month_stk": [], "build_or_draw": []}}
 
-    return Response(serializer.data)
+    for entry in serializer.data:
+        year = entry["year"]
+        curr = entry["curr_month_stk"]
+        prev = entry["prev_month_stk"]
+        build_draw = entry["build_or_draw"]
 
+        converted_data["year"].append(year)
+        converted_data["data"]["curr_month_stk"].append(curr)
+        converted_data["data"]["prev_month_stk"].append(prev)
+        converted_data["data"]["build_or_draw"].append(build_draw)
+
+    return Response(converted_data)
 
 #Advanced chart - amount of build and draw
 
