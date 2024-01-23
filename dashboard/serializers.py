@@ -28,6 +28,11 @@ class MonthwiseDataSerializer(serializers.ModelSerializer):
         model = MonthWiseData
         fields = ['id', 'month', 'year', 'stk']
 
+class PercentageDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PercentageData
+        fields = ['id', 'date', 'spr_per', 'gas_per', 'dist_per']
+
 class WeekWiseDifferenceDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeekWiseDifferenceData

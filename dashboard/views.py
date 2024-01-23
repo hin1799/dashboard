@@ -3,7 +3,7 @@ import pandas as pd
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
-from .helpers import build_draw_percentage, get_all_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly, monthwise_build_draw, build_draw_yearly
+from .helpers import build_draw_percentage, get_all_data, get_percentage_data, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly, monthwise_build_draw, build_draw_yearly
 from .serializers import *
 from .modify_json import *
 
@@ -51,6 +51,17 @@ def raw_chart_monthwise(request, format=None):
     json = json_for_monthwise_raw(serializer.data)
     return Response(json)
 
+
+@api_view(['GET'])
+def raw_chart_percentage(request, format=None):
+    '''Raw plot - Function to plot the percentage wise distribution of gas, spr and distillates from the crude oil stocks'''
+    num_years = request.GET.get('years') #optional parameter - default=5
+    df = get_percentage_data(num_years)
+    data = df.to_dict(orient='records')
+    serializer = PercentageDataSerializer(data, many=True)
+    json = json_for_percentage_data(serializer.data)
+    return Response(json)
+    
 
 @api_view(['GET'])
 def simple_chart_weekwise_diff(request, format=None):

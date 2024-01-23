@@ -31,6 +31,21 @@ def json_for_monthwise_raw(data):
 
     return converted_data
 
+def json_for_percentage_data(data):
+    converted_data = {"date": [], "data": {"spr_per": [], "gas_per": [], "dist_per": []}}
+    for entry in data:
+        date = entry["date"]
+        spr_per = entry["spr_per"]
+        gas_per = entry["gas_per"]
+        dist_per = entry["dist_per"]
+
+        converted_data["date"].append(date)
+        converted_data["data"]["spr_per"].append(spr_per)
+        converted_data["data"]["gas_per"].append(gas_per)
+        converted_data["data"]["dist_per"].append(dist_per)
+    
+    return converted_data
+
 def json_for_weekwise_difference(data):
     converted_data = {"week_diff": set(), "year": {}}
 

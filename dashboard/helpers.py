@@ -52,6 +52,18 @@ def get_monthwise_data(commodity, num_years):
     temp.rename(columns={commodity:'stk'}, inplace=True)
     return temp[['month', 'year', 'stk']]
 
+def get_percentage_data(num_years):
+    df = get_dataframe()
+    df = filter_df_yearwise(df, num_years)
+
+    #Calculating the percentage
+    df['spr_per'] = (df['crude_stk_spr']/df['crude_stk'])*100
+    df['gas_per'] = (df['gas_stk']/df['crude_stk'])*100
+    df['dist_per'] = (df['dist_stk']/df['crude_stk'])*100
+
+    return df[['date', 'spr_per', 'gas_per', 'dist_per']]
+
+
 #Function to get the weekwise difference data
 def get_weekwise_difference(commodity, num_years):
     df = get_dataframe()

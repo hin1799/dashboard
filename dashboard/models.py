@@ -20,6 +20,13 @@ class MonthWiseData(models.Model):
     year = models.IntegerField()
     stk = models.FloatField()
 
+#Percentage Data
+class PercentageData(models.Model):
+    date = models.DateTimeField()
+    spr_per = models.FloatField()
+    gas_per = models.FloatField()
+    dist_per = models.FloatField()
+
 #Week-wise Difference
 class WeekWiseDifferenceData(models.Model):
     week_diff = models.CharField(max_length=10)
