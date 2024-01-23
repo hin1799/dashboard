@@ -11,6 +11,7 @@ from .modify_json import *
 def raw_chart_basic(request, format=None):
     '''Raw plot- Function to get all the EIA data'''
     df = get_all_data()
+    df = df[::-1]
     data = df.to_dict(orient='records')
     serializer = DataSerializer(data, many=True)
     return Response(serializer.data)
