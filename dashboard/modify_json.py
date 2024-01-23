@@ -47,14 +47,18 @@ def json_for_percentage_data(data):
     return converted_data
 
 def json_for_weekwise_difference(data):
-    converted_data = {"week_diff": set(), "year": {}}
+    converted_data = {"week_diff": [], "year": {}}
 
+    flag=0
     for entry in data:
         week_diff = entry["week_diff"]
         year = entry["year"]
         stk = entry["stk"]
 
-        converted_data["week_diff"].add(week_diff)
+        if flag==0:
+            converted_data["week_diff"].append(week_diff)
+            if week_diff == "51-52":
+                flag=1
 
         if year not in converted_data["year"]:
             converted_data["year"][year] = []
