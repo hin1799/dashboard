@@ -147,8 +147,8 @@ def advanced_chart_build_draw_curr_prev_month(request, format=None):
     '''Advanced plot - Function to plot the difference in stocks in 2 given months and show it as build or draw'''
 
     commodity = request.GET.get('commodity') 
-    from_month = request.GET.get('from')
-    to_month = request.GET.get('to')
+    from_month = request.GET.get('curr')
+    to_month = request.GET.get('prev')
 
     if commodity is None or from_month is None or to_month is None:
         return Response(status=status.HTTP_400_BAD_REQUEST)

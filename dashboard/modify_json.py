@@ -131,7 +131,7 @@ def json_for_monthwise_aggregation(data):
     return converted_data
 
 def json_for_build_draw_monthwise(data):
-    converted_data = {"year": [], "data": {"from_month_stk": [], "to_month_stk": [], "build_or_draw": []}}
+    converted_data = {"year": [], "data": {"curr_month_stk": [], "prev_month_stk": [], "build_or_draw": []}}
 
     for entry in data:
         year = entry["year"]
@@ -140,8 +140,8 @@ def json_for_build_draw_monthwise(data):
         build_draw = entry["build_or_draw"]
 
         converted_data["year"].append(year)
-        converted_data["data"]["from_month_stk"].append(curr)
-        converted_data["data"]["to_month_stk"].append(prev)
+        converted_data["data"]["curr_month_stk"].append(curr)
+        converted_data["data"]["prev_month_stk"].append(prev)
         converted_data["data"]["build_or_draw"].append(build_draw)
     
     return converted_data
