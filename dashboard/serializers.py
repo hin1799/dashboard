@@ -72,3 +72,13 @@ class BuildDrawPercentageWeeklySerializer(serializers.ModelSerializer):
     class Meta:
         model = BuildDrawPercentageWeekly
         fields = ['id', 'week', 'build_per', 'draw_per']
+
+class BuildDrawHeatmapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BuildDrawHeatmap
+        fields = ['id', 'month', 'year', 'build_draw']
+
+class InventoryDiffHeatmapSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InventoryDiffHeatmap
+        fields = ['id', 'month', 'year', 'inventory_diff']

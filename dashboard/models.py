@@ -77,3 +77,15 @@ class BuildDrawPercentageWeekly(models.Model):
     week = models.IntegerField()
     build_per = models.FloatField()
     draw_per = models.FloatField()
+
+#Heatmap 
+class BuildDrawHeatmap(models.Model):
+    month = models.IntegerField()
+    year = models.IntegerField()
+    build_draw = models.IntegerField()
+
+#Inventory difference heatmap
+class InventoryDiffHeatmap(models.Model):
+    month = models.IntegerField()
+    year = models.IntegerField()
+    inventory_diff = models.FloatField()

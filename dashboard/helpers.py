@@ -114,7 +114,7 @@ def get_aggregate_analysis_monthly(commodity):
     df2_dump_CRUDE.columns = ['week_month', 'avg', 'minimum', 'maximum','data_2023']
     return df2_dump_CRUDE
 
-def monthwise_build_draw(commodity, curr_month, prev_month):
+def monthwise_build_draw(commodity, from_month, to_month):
     df = get_dataframe()
     df4 = df.copy()
     months = {
@@ -132,15 +132,26 @@ def monthwise_build_draw(commodity, curr_month, prev_month):
     "Dec": 12
     }
 
-    df_diff = pd.concat([df4[(df4['month']==months[curr_month])].groupby(['year']).agg({commodity:'mean'}), df4[(df4['month']==months[prev_month])].groupby(['year']).agg({commodity:'mean'}).shift()], axis=1)
-    df_diff.columns = ['Current Month', 'Previous Month']
-    df_diff['diff'] = df_diff['Current Month'] - df_diff['Previous Month']
-    df_diff['build_or_draw'] = df_diff['diff'].apply(lambda x: 'b' if x > 0 else 'd')
-    df_diff = df_diff.drop('diff', axis=1)
+    if from_month > to_month:
+        df_diff = pd.concat(
+        [df4[(df4['month']==months[from_month])].groupby(['year']).agg({commodity:'min'}).shift(),
+        df4[(df4['month']==months[to_month])].groupby(['year']).agg({commodity:'max'})],
+        axis=1)
+    else:
+        df_diff = pd.concat(
+        [df4[(df4['month']==months[from_month])].groupby(['year']).agg({commodity:'min'}),
+        df4[(df4['month']==months[to_month])].groupby(['year']).agg({commodity:'max'})],
+        axis=1)
+
+    df_diff.columns = ['From Month', 'To Month']
+    df_diff['diff'] = (- df_diff['From Month'] + df_diff['To Month'])
     df_diff = df_diff.reset_index()
-    df_diff = df_diff.drop(0)
-    df_diff.columns = ['year', 'curr_month_stk', 'prev_month_stk', 'build_or_draw']
-    return df_diff
+
+    df_diff['build_or_draw'] = df_diff['diff'].apply(lambda x: 'b' if x > 0 else 'd')
+    
+    df_diff = df_diff.dropna(axis=0)
+    df_diff.columns = ['year', 'curr_month_stk', 'prev_month_stk', 'diff', 'build_or_draw']
+    return df_diff[['year', 'curr_month_stk', 'prev_month_stk', 'build_or_draw']]
 
 def build_draw_yearly(commodity, num_years):
     df = get_dataframe()
@@ -183,6 +194,29 @@ def build_draw_percentage_weekly(commodity):
     pivot_table = pivot_table.fillna(0)
 
     return pivot_table[['week', 'build_per', 'draw_per']]
+
+def build_draw_heatmap(commodity):
+    df = get_dataframe()
+
+    df['inventory_diff'] = df[commodity].diff()
+    df['build_draw'] = df['inventory_diff'].apply(lambda x: -1 if x<0 else 1)
+
+    df_heatmap = df.groupby(['month', 'year']).agg({commodity: 'mean', 'build_draw': 'sum'})
+    df_heatmap = df_heatmap.reset_index()
+
+    return df_heatmap[['month', 'year', 'build_draw']]
+
+def inventory_diff_heatmap(commodity):
+    df = get_dataframe()
+
+    df['inventory_diff'] = df[commodity].diff()
+    df['build_draw'] = df['inventory_diff'].apply(lambda x: -1 if x<0 else 1)
+
+    df_heatmap = df.groupby(['month', 'year']).agg({'inventory_diff': 'mean', 'build_draw':'sum'})
+    df_heatmap = df_heatmap.reset_index()
+
+    return df_heatmap[['month', 'year', 'inventory_diff']]
+
 
 #Function to get data in a particular timeframe
 def get_timewise_data(from_dt, to_dt):

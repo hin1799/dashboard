@@ -3,7 +3,7 @@ import pandas as pd
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
-from .helpers import build_draw_percentage, build_draw_percentage_weekly, get_all_data, get_percentage_data, get_percentage_data_yearly, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly, monthwise_build_draw, build_draw_yearly
+from .helpers import build_draw_heatmap, build_draw_percentage, build_draw_percentage_weekly, get_all_data, get_percentage_data, get_percentage_data_yearly, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly, inventory_diff_heatmap, monthwise_build_draw, build_draw_yearly
 from .serializers import *
 from .modify_json import *
 
@@ -147,13 +147,13 @@ def advanced_chart_build_draw_curr_prev_month(request, format=None):
     '''Advanced plot - Function to plot the difference in stocks in 2 given months and show it as build or draw'''
 
     commodity = request.GET.get('commodity') 
-    curr_month = request.GET.get('curr')
-    prev_month = request.GET.get('prev')
+    from_month = request.GET.get('from')
+    to_month = request.GET.get('to')
 
-    if commodity is None or curr_month is None or prev_month is None:
+    if commodity is None or from_month is None or to_month is None:
         return Response(status=status.HTTP_400_BAD_REQUEST)
     
-    df = monthwise_build_draw(commodity, curr_month, prev_month)
+    df = monthwise_build_draw(commodity, from_month, to_month)
     data = df.to_dict(orient='records')
     serializer = MonthwiseBuildDrawSerializer(data, many=True)
     json = json_for_build_draw_monthwise(serializer.data)
@@ -198,6 +198,26 @@ def advanced_chart_build_draw_percentage_weekly(request, format=None):
     json = json_for_build_draw_percentage_weekly(serializer.data)
     return Response(json)
 
+@api_view(['GET'])
+def advanced_chart_heatmap(request, format=None):
+    '''Advanced plot - Function to show the heatmap showing the overall number of builds, draws each year and monthwise'''
+    commodity = request.GET.get('commodity')
+
+    df = build_draw_heatmap(commodity)
+    data = df.to_dict(orient='records')
+    serializer = BuildDrawHeatmapSerializer(data, many=True)
+    #json = json_for_heatmap(serializer.data)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def advanced_chart_heatmap_invdiff(request, format=None):
+    '''Advanced plot - Function to show the heatmap showing the inventory differences year and monthwise'''
+    commodity = request.GET.get('commodity')
+
+    df = inventory_diff_heatmap(commodity)
+    data = df.to_dict(orient='records')
+    serializer = InventoryDiffHeatmapSerializer(data, many=True)
+    return Response(serializer.data)
 
 
 
