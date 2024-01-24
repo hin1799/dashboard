@@ -143,8 +143,10 @@ def monthwise_build_draw(commodity, from_month, to_month):
         df4[(df4['month']==months[to_month])].groupby(['year']).agg({commodity:'max'})],
         axis=1)
 
+    
     df_diff.columns = ['From Month', 'To Month']
     df_diff['diff'] = (- df_diff['From Month'] + df_diff['To Month'])
+    print(df_diff)
     df_diff = df_diff.reset_index()
 
     df_diff['build_or_draw'] = df_diff['diff'].apply(lambda x: 'b' if x > 0 else 'd')

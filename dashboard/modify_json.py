@@ -95,7 +95,7 @@ def json_for_summer_analysis(data):
     return converted_data
 
 def json_for_weekwise_aggregation(data):
-    converted_data = {"week": [], "data": {"avg": [], "min":[], "max":[], "yr2023":[]}}
+    converted_data = {"week": [], "data": {"yr2023":[], "avg": [], "min":[], "max":[]}}
 
     for entry in data:
         week = entry["week_month"]
@@ -113,7 +113,7 @@ def json_for_weekwise_aggregation(data):
     return converted_data
 
 def json_for_monthwise_aggregation(data):
-    converted_data = {"month": [], "data": {"avg": [], "min": [], "max": [], "yr2023": []}}
+    converted_data = {"month": [], "data": { "yr2023": [], "avg": [], "min": [], "max": []}}
 
     for entry in data:
         month = entry["week_month"]
