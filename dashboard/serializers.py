@@ -67,3 +67,8 @@ class BuildDrawPercentageSerializer(serializers.ModelSerializer):
     class Meta:
         model = BuildDrawPercentage
         fields = ['id', 'month', 'build_per', 'draw_per']
+
+class BuildDrawPercentageWeeklySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BuildDrawPercentageWeekly
+        fields = ['id', 'week', 'build_per', 'draw_per']

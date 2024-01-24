@@ -166,6 +166,24 @@ def build_draw_percentage(commodity):
     pivot_table = pivot_table.reset_index()
     return pivot_table[['month','build_per','draw_per']]
 
+def build_draw_percentage_weekly(commodity):
+    df = get_dataframe()
+
+    df['inventory_diff'] = df[commodity].diff()
+    df['build_draw'] = df['inventory_diff'].apply(lambda x: -1 if x<0 else 1)
+
+    pivot_table_week = df.pivot_table(index='week_no', columns='build_draw', aggfunc='size')
+    pivot_table_week['total'] = pivot_table_week.sum(axis=1)
+    pivot_table_week['build_per'] = (pivot_table_week[1]/pivot_table_week['total'])*100
+    pivot_table_week['draw_per'] = (pivot_table_week[-1]/pivot_table_week['total'])*100
+
+    pivot_table = pivot_table_week.reset_index()
+    pivot_table.rename(columns={'week_no':'week'}, inplace=True)
+    pivot_table.drop(pivot_table.tail(1).index, inplace=True)
+    pivot_table = pivot_table.fillna(0)
+
+    return pivot_table[['week', 'build_per', 'draw_per']]
+
 #Function to get data in a particular timeframe
 def get_timewise_data(from_dt, to_dt):
     df = get_all_data()

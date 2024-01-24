@@ -31,6 +31,7 @@ urlpatterns = [
     path('simple/aggregate_analysis/monthwise/', views.simple_chart_monthwise_aggregations),
     path('advanced/build_draw/monthwise/', views.advanced_chart_build_draw_curr_prev_month),
     path('advanced/build_draw/yearwise/', views.advanced_chart_build_draw_years),
-    path('advanced/build_draw/percentage/', views.advanced_chart_build_draw_percentage)
+    path('advanced/build_draw/percentage/', views.advanced_chart_build_draw_percentage),
+    path('advanced/build_draw/percentage/weekly/', views.advanced_chart_build_draw_percentage_weekly)
 ]
 

@@ -20,7 +20,7 @@ class MonthWiseData(models.Model):
     year = models.IntegerField()
     stk = models.FloatField()
 
-#Yearly Data
+#Percentage Yearly Data
 class PercentageYearly(models.Model):
     year = models.IntegerField()
     spr_per = models.FloatField()
@@ -66,8 +66,14 @@ class YearwiseBuildDraw(models.Model):
     stk = models.IntegerField()
     diff = models.FloatField()
 
-#Build draw percentage
+#Build draw percentage monthly
 class BuildDrawPercentage(models.Model):
     month = models.IntegerField()
+    build_per = models.FloatField()
+    draw_per = models.FloatField()
+
+#Build draw percentage weekly
+class BuildDrawPercentageWeekly(models.Model):
+    week = models.IntegerField()
     build_per = models.FloatField()
     draw_per = models.FloatField()

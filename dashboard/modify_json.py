@@ -171,3 +171,16 @@ def json_for_build_draw_percentage(data):
         converted_data["data"]["build_per"].append(build_per)
         converted_data["data"]["draw_per"].append(draw_per)
     return converted_data
+
+def json_for_build_draw_percentage_weekly(data):
+    converted_data = {"week": [], "data": {"build_per": [], "draw_per": []}}
+
+    for entry in data:
+        week = entry["week"]
+        build_per = entry["build_per"]
+        draw_per = entry["draw_per"]
+
+        converted_data["week"].append(week)
+        converted_data["data"]["build_per"].append(build_per)
+        converted_data["data"]["draw_per"].append(draw_per)
+    return converted_data

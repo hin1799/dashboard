@@ -3,7 +3,7 @@ import pandas as pd
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
-from .helpers import build_draw_percentage, get_all_data, get_percentage_data, get_percentage_data_yearly, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly, monthwise_build_draw, build_draw_yearly
+from .helpers import build_draw_percentage, build_draw_percentage_weekly, get_all_data, get_percentage_data, get_percentage_data_yearly, get_weekwise_data, get_monthwise_data, get_weekwise_difference, get_summer_data, get_aggregate_analysis_weekly, get_aggregate_analysis_monthly, monthwise_build_draw, build_draw_yearly
 from .serializers import *
 from .modify_json import *
 
@@ -185,6 +185,17 @@ def advanced_chart_build_draw_percentage(request, format=None):
     data = df.to_dict(orient='records')
     serializer = BuildDrawPercentageSerializer(data, many=True)
     json = json_for_build_draw_percentage(serializer.data)
+    return Response(json)
+
+@api_view(['GET'])
+def advanced_chart_build_draw_percentage_weekly(request, format=None):
+    '''Advanced plot - Function to show the build and draw percentage in each week over the years'''
+    commodity = request.GET.get('commodity')
+
+    df = build_draw_percentage_weekly(commodity)
+    data = df.to_dict(orient='records')
+    serializer = BuildDrawPercentageWeeklySerializer(data, many=True)
+    json = json_for_build_draw_percentage_weekly(serializer.data)
     return Response(json)
 
 
