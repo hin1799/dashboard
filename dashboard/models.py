@@ -20,6 +20,13 @@ class MonthWiseData(models.Model):
     year = models.IntegerField()
     stk = models.FloatField()
 
+#Yearly Data
+class PercentageYearly(models.Model):
+    year = models.IntegerField()
+    spr_per = models.FloatField()
+    gas_per = models.FloatField()
+    dist_per = models.FloatField()
+
 #Percentage Data
 class PercentageData(models.Model):
     date = models.DateTimeField()

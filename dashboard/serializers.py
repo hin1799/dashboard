@@ -18,6 +18,11 @@ class DataSerializer(serializers.ModelSerializer):
 
         return data
 
+class PercentageYearlySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PercentageYearly
+        fields = ['id', 'year', 'spr_per', 'gas_per', 'dist_per']
+
 class WeekwiseDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = WeekWiseData

@@ -63,6 +63,16 @@ def get_percentage_data(num_years):
 
     return df[['date', 'spr_per', 'gas_per', 'dist_per']]
 
+def get_percentage_data_yearly():
+    df = get_dataframe()
+    df['spr_per'] = (df['crude_stk_spr']/df['crude_stk'])*100
+    df['gas_per'] = (df['gas_stk']/df['crude_stk'])*100
+    df['dist_per'] = (df['dist_stk']/df['crude_stk'])*100
+
+    df_per_year = df.groupby('year').agg({'spr_per': 'mean', 'gas_per': 'mean', 'dist_per':'mean'})
+
+    df_per_year = df_per_year.reset_index()
+    return df_per_year[['year', 'spr_per', 'gas_per', 'dist_per']]
 
 #Function to get the weekwise difference data
 def get_weekwise_difference(commodity, num_years):
