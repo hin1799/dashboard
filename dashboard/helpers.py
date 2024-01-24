@@ -132,7 +132,7 @@ def monthwise_build_draw(commodity, from_month, to_month):
     "Dec": 12
     }
 
-    if from_month > to_month:
+    if months[from_month] > months[to_month]:
         df_diff = pd.concat(
         [df4[(df4['month']==months[from_month])].groupby(['year']).agg({commodity:'min'}).shift(),
         df4[(df4['month']==months[to_month])].groupby(['year']).agg({commodity:'max'})],
